@@ -1,6 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import Map from "./Map";
+import MapComponent from "./Map";
+import dynamic from "next/dynamic";
+
+const DynamicComponent = dynamic(() => import("./Map"), { ssr: false });
 
 const Overview = () => {
   //   const position: [number, number] = [8.2165, 126.0458];
@@ -15,9 +18,6 @@ const Overview = () => {
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        console.log("position latitude", position.coords.latitude);
-        console.log("position longitude", position.coords.longitude);
-
         setPosition([position.coords.latitude, position.coords.longitude]);
       },
       (error) => {
@@ -30,9 +30,9 @@ const Overview = () => {
     <div className="w-screen h-[100svh] flex flex-col">
       <div>
         {position ? (
-          <Map position={position} />
+          <DynamicComponent position={position} />
         ) : (
-          <Map position={defaultPosition} />
+          <DynamicComponent position={defaultPosition} />
         )}
       </div>
     </div>

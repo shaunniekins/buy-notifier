@@ -1,25 +1,49 @@
 "use client";
 
 import { divIcon, icon } from "leaflet";
-import {
-  MapContainer,
-  Marker,
-  Popup,
-  TileLayer,
-  useMap,
-  useMapEvents,
-} from "react-leaflet";
+import { useMap, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import { Map } from "leaflet";
+
+const MapContainer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.MapContainer),
+  { ssr: false }
+);
+
+const Marker = dynamic(
+  () => import("react-leaflet").then((mod) => mod.Marker),
+  { ssr: false }
+);
+
+const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), {
+  ssr: false,
+});
+
+const TileLayer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.TileLayer),
+  { ssr: false }
+);
+
+function useClientSideMap() {
+  const map = useMap();
+  const mapEvents = useMapEvents({});
+
+  return { map, mapEvents };
+}
 
 interface CenterProps {
   center: [number, number];
 }
 
-const ChangeView: React.FC<CenterProps> = ({ center }) => {
-  const map = useMap();
+const ChangeView: React.FC<CenterProps> = ({ center }): React.ReactNode => {
+  const { map } = useClientSideMap();
+
   useEffect(() => {
-    map.flyTo(center);
+    if (map) {
+      map.flyTo(center);
+    }
   }, [center, map]);
 
   return null;
@@ -30,7 +54,7 @@ interface MapComponentProps {
   position: [number, number];
 }
 
-const Map: React.FC<MapComponentProps> = ({ position }) => {
+const MapComponent: React.FC<MapComponentProps> = ({ position }) => {
   const iconSize: [number, number] = [100, 100];
 
   const ICON = divIcon({
@@ -74,4 +98,4 @@ const Map: React.FC<MapComponentProps> = ({ position }) => {
   );
 };
 
-export default Map;
+export default MapComponent;
