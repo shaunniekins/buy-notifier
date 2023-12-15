@@ -6,6 +6,7 @@ import "leaflet/dist/leaflet.css";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { Map } from "leaflet";
+import { MdLocationPin } from "react-icons/md";
 
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
@@ -52,10 +53,12 @@ const ChangeView: React.FC<CenterProps> = ({ center }): React.ReactNode => {
 interface MapComponentProps {
   //[latitude, longitude]
   position: [number, number];
+  points: any;
 }
 
-const MapComponent: React.FC<MapComponentProps> = ({ position }) => {
+const MapComponent: React.FC<MapComponentProps> = ({ position, points }) => {
   const iconSize: [number, number] = [100, 100];
+  const iconSizeOther: [number, number] = [60, 60];
 
   const ICON = divIcon({
     // iconUrl: "/vercel.svg",
@@ -75,13 +78,21 @@ const MapComponent: React.FC<MapComponentProps> = ({ position }) => {
     iconSize: iconSize,
   });
 
+  const ICON_OTHER = icon({
+    iconUrl: "/location.png",
+    // className: "morph-active",
+    iconSize: iconSizeOther,
+  });
+
   return (
     <div className="w-full bg-white shadow-lg flex justify-between rounded-xl h-full">
       <MapContainer
         center={position}
         zoom={18}
-        maxZoom={25}
-        scrollWheelZoom={false}
+        maxZoom={18}
+        zoomControl={false}
+        attributionControl={false}
+        // scrollWheelZoom={false}
         style={{ width: "100%", height: "100svh" }}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -92,6 +103,18 @@ const MapComponent: React.FC<MapComponentProps> = ({ position }) => {
             A pretty CSS3 popup. <br /> Easily customizable.
           </Popup>
         </Marker>
+
+        {points.map((point: any, index: number) => (
+          <Marker
+            key={index}
+            position={[point.latitude, point.longitude]}
+            icon={ICON_OTHER}>
+            <Popup>
+              A pretty CSS3 popup. <br /> Easily customizable.
+            </Popup>
+          </Marker>
+        ))}
+
         <ChangeView center={position} />
       </MapContainer>
     </div>
