@@ -89,14 +89,18 @@ const MapComponent: React.FC<MapComponentProps> = ({ position, points }) => {
       <MapContainer
         center={position}
         zoom={18}
-        maxZoom={18}
+        maxZoom={30}
         zoomControl={false}
         attributionControl={false}
+        className="h-full"
         // scrollWheelZoom={false}
         style={{ width: "100%", height: "100svh" }}>
-        <TileLayer
+        {/* <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        /> */}
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" // OpenStreetMap tile layer URL
         />
         <Marker position={position} icon={ICON}>
           <Popup>

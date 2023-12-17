@@ -1,5 +1,11 @@
 import Overview from "@/components/Overview";
+import LandingComponent from "@/components/Landing";
+import Redirect from "@/utils/Redirect";
 
 export default function Home() {
-  return <Overview />;
+  return (
+    <Redirect>
+      <LandingComponent />
+    </Redirect>
+  );
 }
