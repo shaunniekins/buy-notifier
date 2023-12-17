@@ -25,14 +25,14 @@ function deg2rad(deg: number): number {
   return deg * (Math.PI / 180);
 }
 
-export const fetchConsumerLocationRecord = async (
+export const fetchPeddlerLocationRecord = async (
   radius: number,
   centerLat: number,
   centerLon: number
 ) => {
   try {
     let { data, error } = await supabase
-      .from("consumer_active_locations")
+      .from("peddler_active_locations")
       .select("*")
       .not("latitude", "eq", null)
       .not("longitude", "eq", null);
@@ -62,14 +62,14 @@ export const fetchConsumerLocationRecord = async (
   }
 };
 
-export const updateConsumerLocationRecord = async (
+export const updatePeddlerLocationRecord = async (
   id: string,
   latitude: number,
   longitude: number
 ) => {
   try {
     const { data, error } = await supabase
-      .from("consumer_active_locations")
+      .from("peddler_active_locations")
       .upsert({
         id: id,
         latitude: latitude,

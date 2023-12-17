@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import MapComponent from "./Map";
 import dynamic from "next/dynamic";
 import { isPointWithinRadius } from "geolib";
@@ -8,70 +8,113 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { MdOutlineLogout } from "react-icons/md";
 import { supabase } from "@/utils/supabase";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
-import { fetchConsumerRecord } from "@/data/consumer_active_locations_data";
-import { Consumer } from "@/types/interfaces";
+import {
+  fetchConsumerLocationRecord,
+  updateConsumerLocationRecord,
+} from "@/data/consumer_active_locations_data";
+import {
+  fetchPeddlerLocationRecord,
+  updatePeddlerLocationRecord,
+} from "@/data/peddler_active_locations_data";
+import { ParticipantLocation } from "@/types/interfaces";
+import { useContext } from "react";
+import { UserContext } from "@/utils/UserContext";
 
 const DynamicComponent = dynamic(() => import("./Map"), { ssr: false });
 
 const Overview = () => {
-  //   const position: [number, number] = [8.2165, 126.0458];
-  const [position, setPosition] = useState<[number, number] | null>(null);
+  const [position, setPosition] = useState<[number, number]>([122.563, 11.803]);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [consumerData, setConsumerData] = useState<Consumer[]>([]);
+  const [participantData, setParticipantData] = useState<ParticipantLocation[]>(
+    []
+  );
 
   const router = useRouter();
+  const pathname = usePathname();
 
-  //butuan
-  // const defaultPosition: [number, number] = [8.951549, 125.527725];
+  const userType = pathname.includes("/peddler/")
+    ? "peddler"
+    : pathname.includes("/consumer/")
+    ? "consumer"
+    : null;
 
-  //bayugan
-  const defaultPosition: [number, number] = [8.720861, 125.754318];
+  const { userName, userId } = useContext(UserContext);
+  // console.log("userId", userId);
 
-  const points = [
-    { latitude: 8.721, longitude: 125.754 },
-    { latitude: 8.850861, longitude: 125.754318 },
-    { latitude: 8.620861, longitude: 125.754318 },
-    { latitude: 8.720861, longitude: 125.554318 },
-    { latitude: 8.720861, longitude: 125.954318 },
-    { latitude: 8.800861, longitude: 125.800318 },
-    { latitude: 8.711849785042917, longitude: 125.76167557550343 },
-    { latitude: 8.71240068513227, longitude: 125.7523563190912 },
-  ];
+  //philippines
+  // const defaultPosition: [number, number] = [122.563, 11.803];
 
-  const memoizedFetchConsumerData = useCallback(async () => {
-    try {
-      const response = await fetchConsumerRecord();
-      if (response?.error) {
-        console.error(response.error);
-      } else {
-        setConsumerData(response?.data || []);
-        console.log(response?.data || []);
+  // //bayugan
+  // const defaultPosition: [number, number] = [8.720861, 125.754318];
+
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     if (userType === "peddler") {
+  //       updatePeddlerLocationRecord(userId, position[0], position[1]);
+  //     } else if (userType === "consumer") {
+  //       updateConsumerLocationRecord(userId, position[0], position[1]);
+  //     }
+  //   }, 4000);
+
+  //   return () => clearInterval(interval);
+  // }, [userId, position, userType]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (userType === "peddler") {
+        updatePeddlerLocationRecord(userId, position[0], position[1]);
+      } else if (userType === "consumer") {
+        updateConsumerLocationRecord(userId, position[0], position[1]);
       }
+    }, 4000);
+
+    return () => clearTimeout(timeout);
+  }, [position]);
+
+  const radius = 1; // in kilometers
+
+  // get the positions of peddlers (currentUser: consumer) /consumers (currentUser: peddler) within the radius
+  const memoizedFetchLocationData = useCallback(async () => {
+    try {
+      let data;
+      if (userType === "peddler") {
+        data = await fetchConsumerLocationRecord(
+          radius,
+          position[0],
+          position[1]
+        );
+      } else if (userType === "consumer") {
+        data = await fetchPeddlerLocationRecord(
+          radius,
+          position[0],
+          position[1]
+        );
+      }
+      setParticipantData(data || []);
+      // console.log(data || []);
     } catch (error) {
       console.error("An error occurred:", error);
     }
-  }, []);
+  }, [radius, position, userType]);
 
   useEffect(() => {
-    memoizedFetchConsumerData();
-    const interval = setInterval(memoizedFetchConsumerData, 4000);
+    memoizedFetchLocationData();
+    const interval = setInterval(memoizedFetchLocationData, 4000);
 
     return () => clearInterval(interval);
-  }, [memoizedFetchConsumerData]);
+  }, [position, memoizedFetchLocationData]);
 
-  const radius = 400; // in meters
-
-  // this one should be pass to the component as props instead of points directly
-
-  useEffect(() => {
-    const pointsWithinRadius = points.filter((point) =>
-      isPointWithinRadius(point, position ? position : defaultPosition, radius)
-    );
-
-    // console.log(pointsWithinRadius);
-  }, [position]);
+  const points = useMemo(
+    () =>
+      participantData.map((item) => ({
+        ...item,
+        latitude: parseFloat(item.latitude),
+        longitude: parseFloat(item.longitude),
+      })),
+    [participantData]
+  );
 
   useEffect(() => {
     const watchId = navigator.geolocation.watchPosition(
@@ -83,14 +126,12 @@ const Overview = () => {
       }
     );
 
-    // Clean up function to stop watching the position when the component unmounts
     return () => {
       navigator.geolocation.clearWatch(watchId);
     };
   }, []);
 
   const handleRefresh = () => {
-    // New handler function
     setRefreshKey((oldKey) => oldKey + 1);
   };
 
@@ -133,19 +174,11 @@ const Overview = () => {
         />
       </div> */}
       <div className=" z-0">
-        {position ? (
-          <DynamicComponent
-            key={refreshKey}
-            position={position}
-            points={points}
-          />
-        ) : (
-          <DynamicComponent
-            key={refreshKey}
-            position={defaultPosition}
-            points={points}
-          />
-        )}
+        <DynamicComponent
+          key={refreshKey}
+          position={position}
+          points={points}
+        />
       </div>
       <button
         onClick={() => {

@@ -14,3 +14,9 @@ export interface Consumer {
   email: string;
   password: string;
 }
+
+export interface ParticipantLocation {
+  id: string;
+  latitude: string;
+  longitude: string;
+}
