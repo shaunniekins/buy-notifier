@@ -2,7 +2,8 @@ import { ReactNode } from "react";
 
 export interface Peddler {
   id: string;
-  name: string;
+  last_name: string;
+  first_name: string;
   email: string;
   password: string;
 }

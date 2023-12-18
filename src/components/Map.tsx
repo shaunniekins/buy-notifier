@@ -54,9 +54,16 @@ interface MapComponentProps {
   //[latitude, longitude]
   position: [number, number];
   points: any;
+  otherParticipantDataInfo: any;
+  userType: string | null;
 }
 
-const MapComponent: React.FC<MapComponentProps> = ({ position, points }) => {
+const MapComponent: React.FC<MapComponentProps> = ({
+  position,
+  points,
+  otherParticipantDataInfo,
+  userType,
+}) => {
   const iconSize: [number, number] = [100, 100];
   const iconSizeOther: [number, number] = [60, 60];
 
@@ -103,21 +110,41 @@ const MapComponent: React.FC<MapComponentProps> = ({ position, points }) => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" // OpenStreetMap tile layer URL
         />
         <Marker position={position} icon={ICON}>
-          <Popup>
+          {/* <Popup>
             A pretty CSS3 popup. <br /> Easily customizable.
-          </Popup>
+          </Popup> */}
         </Marker>
 
-        {points.map((point: any, index: number) => (
-          <Marker
-            key={index}
-            position={[point.latitude, point.longitude]}
-            icon={ICON_OTHER}>
-            <Popup>
-              A pretty CSS3 popup. <br /> Easily customizable.
-            </Popup>
-          </Marker>
-        ))}
+        {points.map((point: any, index: number) => {
+          // Find the corresponding user data
+          const userData = otherParticipantDataInfo.find(
+            (user: any) => user.id === point.id
+          );
+
+          return (
+            <Marker
+              key={index}
+              position={[point.latitude, point.longitude]}
+              icon={ICON_OTHER}>
+              <Popup>
+                <div className="flex flex-col gap-3">
+                  {userData ? (
+                    <h2 className=" text-lg">
+                      {` ${userData.first_name} ${userData.last_name}`}
+                    </h2>
+                  ) : (
+                    ""
+                  )}
+                  {userType === "consumer" && (
+                    <button className="bg-purple-300 rounded-xl px-3 py-1">
+                      Willing to buy
+                    </button>
+                  )}
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })}
 
         <ChangeView center={position} />
       </MapContainer>

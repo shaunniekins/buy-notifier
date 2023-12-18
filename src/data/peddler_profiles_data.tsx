@@ -47,3 +47,20 @@ export const insertPeddlerRecord = async (data: Peddler) => {
     return null;
   }
 };
+
+export const fetchPeddlerRecords = async (ids: string[]) => {
+  try {
+    const { data, error } = await supabase
+      .from("peddler_profiles")
+      .select()
+      .in("id", ids);
+
+    if (error) {
+      throw error;
+    }
+    return data;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return null;
+  }
+};

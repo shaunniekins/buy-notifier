@@ -64,8 +64,8 @@ export const fetchPeddlerLocationRecord = async (
 
 export const updatePeddlerLocationRecord = async (
   id: string,
-  latitude: number,
-  longitude: number
+  latitude: number | null,
+  longitude: number | null
 ) => {
   try {
     const { data, error } = await supabase

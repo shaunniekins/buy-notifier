@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { supabase, supabaseAdmin } from "../utils/supabase";
 import { useRouter } from "next/navigation";
-import { ThreeDots, FidgetSpinner } from "react-loader-spinner";
+import { MutatingDots } from "react-loader-spinner";
 
 import { UserContext } from "./UserContext";
 
@@ -47,11 +47,12 @@ const Protected = ({ children }: { children: React.ReactNode }) => {
       const checkUser = async () => {
         const { data: peddlerData } = await supabaseAdmin
           .from("peddler_profiles")
-          .select("id, name")
+          .select("id, first_name, last_name")
           .eq("id", user.id);
 
         if (peddlerData && peddlerData.length > 0) {
-          setUserName(user.name);
+          const name = `${peddlerData[0].first_name} ${peddlerData[0].last_name}`;
+          setUserName(name);
           setUserId(user.id);
           router.push("/peddler/view");
           return;
@@ -78,8 +79,18 @@ const Protected = ({ children }: { children: React.ReactNode }) => {
   if (isLoading) {
     // You can show a loading spinner or message while checking authentication.
     return (
-      <div className="z-50 flex w-screen h-[100svh] justify-center items-center bg-opacity-50 bg-black inset-0 fixed">
-        <FidgetSpinner />
+      <div className="z-50 flex w-screen h-[100svh] justify-center items-center bg-opacity-50 bg-black inset-0 fixed overflow-hidden">
+        <MutatingDots
+          height="100"
+          width="100"
+          color="#8667F2"
+          secondaryColor="#E0E7FF"
+          radius="12.5"
+          ariaLabel="mutating-dots-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible={true}
+        />
       </div>
     );
   }

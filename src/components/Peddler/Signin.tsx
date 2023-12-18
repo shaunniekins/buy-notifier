@@ -10,7 +10,7 @@ import {
 } from "@/data/peddler_profiles_data";
 import { insertConsumerRecord } from "@/data/consumer_profiles_data";
 import { ToastContainer, toast } from "react-toastify";
-import { FidgetSpinner } from "react-loader-spinner";
+import { MutatingDots } from "react-loader-spinner";
 
 const PeddlerSigninComponent = () => {
   const [isSignIn, setIsSignIn] = useState(true);
@@ -71,7 +71,7 @@ const PeddlerSigninComponent = () => {
           setIndicatorStatus(false);
           handleTimeout();
         } else {
-          console.log("id", data?.user.id);
+          // console.log("id", data?.user.id);
           // setEmailVal("");
           // setPassVal("");
           // router.push("/home");
@@ -139,7 +139,8 @@ const PeddlerSigninComponent = () => {
               if (data.user?.id) {
                 const newPeddlerData = {
                   id: data.user.id,
-                  name: name,
+                  last_name: lastName,
+                  first_name: firstName,
                   email: emailVal,
                   password: passVal,
                 };
@@ -197,7 +198,17 @@ const PeddlerSigninComponent = () => {
       {loading && (
         <div
           className={`z-50 fixed inset-0 flex items-center justify-center bg-opacity-50 bg-black overflow-y-auto`}>
-          <FidgetSpinner />
+          <MutatingDots
+            height="100"
+            width="100"
+            color="#8667F2"
+            secondaryColor="#E0E7FF"
+            radius="12.5"
+            ariaLabel="mutating-dots-loading"
+            wrapperStyle={{}}
+            wrapperClass=""
+            visible={true}
+          />
         </div>
       )}
       <div className="container mx-auto sm:w-[30rem] w-screen h-[100svh] flex flex-col items-center font-Roboto justify-around font-Montserrat cursive relative">
@@ -258,19 +269,20 @@ const PeddlerSigninComponent = () => {
                   className="w-full flex py-3 px-[25px] border border-purple-300 rounded-lg space-x-[30px]"
                 />
               )} */}
-              {!isSignIn &&
-                (userType === "peddler" ? (
-                  <input
-                    type="text"
-                    name="name"
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    placeholder="Name"
-                    className="w-full flex py-3 px-[25px] border border-purple-300 rounded-lg space-x-[30px]"
-                  />
-                ) : (
+              {
+                !isSignIn && (
+                  // (userType === "peddler" ? (
+                  //   <input
+                  //     type="text"
+                  //     name="name"
+                  //     id="name"
+                  //     value={name}
+                  //     onChange={(e) => setName(e.target.value)}
+                  //     required
+                  //     placeholder="Name"
+                  //     className="w-full flex py-3 px-[25px] border border-purple-300 rounded-lg space-x-[30px]"
+                  //   />
+                  // ) : (
                   <>
                     <input
                       type="text"
@@ -293,7 +305,10 @@ const PeddlerSigninComponent = () => {
                       className="w-full flex py-3 px-[25px] border border-purple-300 rounded-lg space-x-[30px]"
                     />
                   </>
-                ))}
+                )
+                // )
+                // )
+              }
               <input
                 type="password"
                 name="password"

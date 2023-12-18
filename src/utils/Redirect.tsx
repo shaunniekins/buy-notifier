@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { supabase } from "./supabase";
-import { ThreeDots, FidgetSpinner } from "react-loader-spinner";
+import { MutatingDots } from "react-loader-spinner";
 import { Consumer, Peddler } from "@/types/interfaces";
 
 type User = any;
@@ -72,8 +72,18 @@ const Redirect = ({ children }: { children: React.ReactNode }) => {
 
   if (isLoading) {
     return (
-      <div className="z-50 flex w-screen h-[100svh] justify-center items-center bg-opacity-50 bg-black inset-0 fixed">
-        <FidgetSpinner />
+      <div className="z-50 flex w-screen h-[100svh] justify-center items-center bg-opacity-50 bg-black inset-0 fixed overflow-hidden">
+        <MutatingDots
+          height="100"
+          width="100"
+          color="#8667F2"
+          secondaryColor="#E0E7FF"
+          radius="12.5"
+          ariaLabel="mutating-dots-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible={true}
+        />
       </div>
     );
   }
