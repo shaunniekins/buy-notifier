@@ -329,9 +329,16 @@ const Overview = () => {
       )}
       <div className="w-full absolute top-0 flex flex-col gap-1 p-2">
         <div className="bg-[#171A20] rounded-full justify-between items-center gap-2 flex p-2">
-          <div className="text-white text-[35px]">
+          <button
+            className="text-white text-[35px]"
+            onClick={() => {
+              supabase.auth.signOut();
+              localStorage.removeItem("name");
+              localStorage.removeItem("userId");
+              router.push("/");
+            }}>
             <FaRegUserCircle />
-          </div>
+          </button>
           <button
             className="text-white"
             onClick={() => {
@@ -352,8 +359,8 @@ const Overview = () => {
           </div>
         )}
       </div>
-      {/* <div className="absolute bottom-0 right-0 m-4 flex flex-col gap-3">
-        {userType === "consumer" && (
+      <div className="absolute bottom-20 right-0 m-4 flex flex-col gap-3">
+        {userType === "consumer" && currentView === "search" && (
           <button
             onClick={() => {
               setIsEyeShow(!isEyeShow);
@@ -364,16 +371,18 @@ const Overview = () => {
             <TfiEye />
           </button>
         )}
-        <button
-          onClick={() => {
-            handleRefresh();
-            // notify();
-            // notifyPrompt();
-          }}
-          className=" bg-purple-500 text-white z-50 rounded-full p-2 text-3xl">
-          <TfiTarget />
-        </button>
-        <button
+        {currentView === "search" && (
+          <button
+            onClick={() => {
+              handleRefresh();
+              // notify();
+              // notifyPrompt();
+            }}
+            className=" bg-purple-500 text-white z-50 rounded-full p-2 text-3xl">
+            <TfiTarget />
+          </button>
+        )}
+        {/* <button
           onClick={() => {
             supabase.auth.signOut();
             localStorage.removeItem("name");
@@ -382,8 +391,8 @@ const Overview = () => {
           }}
           className="bg-purple-500 text-white z-50 rounded-full p-2 text-3xl">
           <MdOutlineLogout />
-        </button>
-      </div> */}
+        </button> */}
+      </div>
       <div className="w-full absolute bottom-0 flex flex-col">
         <div className="bg-[#171A20] justify-around items-center gap-2 flex p-2">
           <button
