@@ -194,21 +194,21 @@ const Overview = () => {
     return () => clearInterval(interval);
   }, [participantData, memeoizedFetchOtherData]);
 
-  // // check for the change in position
-  // useEffect(() => {
-  //   const watchId = navigator.geolocation.watchPosition(
-  //     (position) => {
-  //       setPosition([position.coords.latitude, position.coords.longitude]);
-  //     },
-  //     (error) => {
-  //       console.log(error);
-  //     }
-  //   );
+  // check for the change in position
+  useEffect(() => {
+    const watchId = navigator.geolocation.watchPosition(
+      (position) => {
+        setPosition([position.coords.latitude, position.coords.longitude]);
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
 
-  //   return () => {
-  //     navigator.geolocation.clearWatch(watchId);
-  //   };
-  // }, []);
+    return () => {
+      navigator.geolocation.clearWatch(watchId);
+    };
+  }, []);
 
   const handleRefresh = () => {
     setRefreshKey((oldKey) => oldKey + 1);
