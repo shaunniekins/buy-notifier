@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapComponent from "./Map";
 import dynamic from "next/dynamic";
 import { isPointWithinRadius } from "geolib";
@@ -200,18 +200,20 @@ const Overview = () => {
 
   const notify = () => toast("Wow so easy!");
 
-  let audio = new Audio("/notifbuy-sound.mp3");
+  const audio = useRef<HTMLAudioElement | undefined>(
+    typeof Audio !== "undefined" ? new Audio("/ayaw-kol.mp3") : undefined
+  );
 
   // Call this function when the user interacts with the page
   const enableAudio = () => {
-    audio.play();
-    audio.pause();
-    audio.currentTime = 0;
+    audio.current?.play();
+    audio.current?.pause();
+    audio.current!.currentTime = 0;
   };
 
   // Call this function to play the audio
   const playAudio = () => {
-    audio.play();
+    audio.current?.play();
   };
 
   // The notifyPrompt is using the Notifications API to show a notification directly from the page, rather than from a Service Worker. This will only work while the page is active.
