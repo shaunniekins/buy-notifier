@@ -1,7 +1,7 @@
 "use client";
 
 import { divIcon, icon } from "leaflet";
-import { useMap, useMapEvents } from "react-leaflet";
+import { Tooltip, useMap, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
@@ -56,6 +56,7 @@ interface MapComponentProps {
   points: any;
   otherParticipantDataInfo: any;
   userType: string | null;
+  isEyeShow: boolean;
 }
 
 const MapComponent: React.FC<MapComponentProps> = ({
@@ -63,6 +64,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
   points,
   otherParticipantDataInfo,
   userType,
+  isEyeShow,
 }) => {
   const iconSize: [number, number] = [100, 100];
   const iconSizeOther: [number, number] = [60, 60];
@@ -126,9 +128,23 @@ const MapComponent: React.FC<MapComponentProps> = ({
               key={index}
               position={[point.latitude, point.longitude]}
               icon={ICON_OTHER}>
+              {userType === "consumer" && isEyeShow && (
+                <Tooltip
+                  className="bg-black text-white rounded-xl px-3 py-1"
+                  direction="bottom"
+                  offset={[0, 20]}
+                  opacity={1}
+                  permanent>
+                  {userData && (
+                    <h2 className=" text-lg">
+                      {` ${userData.first_name} ${userData.last_name}`}
+                    </h2>
+                  )}
+                </Tooltip>
+              )}
               <Popup>
                 <div className="flex flex-col gap-3">
-                  {userData ? (
+                  {userData && userType === "peddler" ? (
                     <h2 className=" text-lg">
                       {` ${userData.first_name} ${userData.last_name}`}
                     </h2>
@@ -136,7 +152,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
                     ""
                   )}
                   {userType === "consumer" && (
-                    <button className="bg-purple-300 rounded-xl px-3 py-1">
+                    <button className="bg-purple-300 text-lg rounded-xl px-3 py-1">
                       Willing to buy
                     </button>
                   )}

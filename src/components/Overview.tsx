@@ -3,12 +3,20 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapComponent from "./Map";
 import dynamic from "next/dynamic";
 import { isPointWithinRadius } from "geolib";
-import { TfiTarget } from "react-icons/tfi";
+import { TfiTarget, TfiEye } from "react-icons/tfi";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { MdOutlineLogout } from "react-icons/md";
+import { MdOutlineFilter, MdOutlineLogout } from "react-icons/md";
 import { supabase } from "@/utils/supabase";
 import { usePathname, useRouter } from "next/navigation";
+
+import {
+  IoPersonCircleOutline,
+  IoSearchOutline,
+  IoListOutline,
+  IoChatboxOutline,
+  IoNotificationsOutline,
+} from "react-icons/io5";
 
 import {
   fetchConsumerLocationRecord,
@@ -27,6 +35,9 @@ import {
   checkPeddlerActivity,
   updatePeddlerRecord,
 } from "@/data/peddlers_data";
+import { IoFilterOutline } from "react-icons/io5";
+import { FaRegUserCircle } from "react-icons/fa";
+import Image from "next/image";
 
 const DynamicComponent = dynamic(() => import("./Map"), { ssr: false });
 
@@ -39,6 +50,11 @@ const Overview = () => {
   const [otherParticipantDataInfo, setOtherParticipantDataInfo] = useState<
     any[]
   >([]);
+
+  const [isEyeShow, setIsEyeShow] = useState(true);
+  const [showLogout, setShowLogout] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
+  const [currentView, setCurrentView] = useState("search");
 
   const router = useRouter();
   const pathname = usePathname();
@@ -178,21 +194,21 @@ const Overview = () => {
     return () => clearInterval(interval);
   }, [participantData, memeoizedFetchOtherData]);
 
-  // check for the change in position
-  useEffect(() => {
-    const watchId = navigator.geolocation.watchPosition(
-      (position) => {
-        setPosition([position.coords.latitude, position.coords.longitude]);
-      },
-      (error) => {
-        console.log(error);
-      }
-    );
+  // // check for the change in position
+  // useEffect(() => {
+  //   const watchId = navigator.geolocation.watchPosition(
+  //     (position) => {
+  //       setPosition([position.coords.latitude, position.coords.longitude]);
+  //     },
+  //     (error) => {
+  //       console.log(error);
+  //     }
+  //   );
 
-    return () => {
-      navigator.geolocation.clearWatch(watchId);
-    };
-  }, []);
+  //   return () => {
+  //     navigator.geolocation.clearWatch(watchId);
+  //   };
+  // }, []);
 
   const handleRefresh = () => {
     setRefreshKey((oldKey) => oldKey + 1);
@@ -299,35 +315,129 @@ const Overview = () => {
           theme="light"
         />
       </div> */}
-      <div className=" z-0">
-        <DynamicComponent
-          key={refreshKey}
-          position={position}
-          points={points}
-          otherParticipantDataInfo={otherParticipantDataInfo}
-          userType={userType}
-        />
+      {currentView === "search" && (
+        <div className=" z-0">
+          <DynamicComponent
+            key={refreshKey}
+            position={position}
+            points={points}
+            otherParticipantDataInfo={otherParticipantDataInfo}
+            userType={userType}
+            isEyeShow={isEyeShow}
+          />
+        </div>
+      )}
+      <div className="w-full absolute top-0 flex flex-col gap-1 p-2">
+        <div className="bg-[#171A20] rounded-full justify-between items-center gap-2 flex p-2">
+          <div className="text-white text-[35px]">
+            <FaRegUserCircle />
+          </div>
+          <button
+            className="text-white"
+            onClick={() => {
+              setShowFilter(!showFilter);
+            }}>
+            Search {userType === "peddler" ? "Customer" : "Peddler"}
+          </button>
+          <Image
+            src={"/notifbuy-logo.png"}
+            alt="Notifbuy Logo"
+            width={35}
+            height={35}
+          />
+        </div>
+        {showFilter && (
+          <div className="bg-neutral-900 rounded-lg justify-between items-center gap-2 flex p-2 mx-5">
+            <h3 className="text-white">Search by category</h3>
+          </div>
+        )}
       </div>
-      <button
-        onClick={() => {
-          handleRefresh();
-          // notify();
-          // notifyPrompt();
-        }}
-        className="absolute bottom-0 right-0 m-4 bg-purple-500 text-white z-50 rounded-full p-2 text-3xl">
-        <TfiTarget />
-      </button>
-
-      <button
-        onClick={() => {
-          supabase.auth.signOut();
-          localStorage.removeItem("name");
-          localStorage.removeItem("userId");
-          router.push("/");
-        }}
-        className="absolute top-0 right-0 m-4 bg-purple-500 text-white z-50 rounded-full p-2 text-3xl">
-        <MdOutlineLogout />
-      </button>
+      {/* <div className="absolute bottom-0 right-0 m-4 flex flex-col gap-3">
+        {userType === "consumer" && (
+          <button
+            onClick={() => {
+              setIsEyeShow(!isEyeShow);
+            }}
+            className={`text-white z-50 rounded-full p-2 text-3xl ${
+              !isEyeShow ? "bg-[#E0E7FF]" : "bg-[#8667F2]"
+            }`}>
+            <TfiEye />
+          </button>
+        )}
+        <button
+          onClick={() => {
+            handleRefresh();
+            // notify();
+            // notifyPrompt();
+          }}
+          className=" bg-purple-500 text-white z-50 rounded-full p-2 text-3xl">
+          <TfiTarget />
+        </button>
+        <button
+          onClick={() => {
+            supabase.auth.signOut();
+            localStorage.removeItem("name");
+            localStorage.removeItem("userId");
+            router.push("/");
+          }}
+          className="bg-purple-500 text-white z-50 rounded-full p-2 text-3xl">
+          <MdOutlineLogout />
+        </button>
+      </div> */}
+      <div className="w-full absolute bottom-0 flex flex-col">
+        <div className="bg-[#171A20] justify-around items-center gap-2 flex p-2">
+          <button
+            className={`flex flex-col items-center justify-center text-[30px] ${
+              currentView === "profile" ? "text-[#8667F2]" : "text-white"
+            }`}
+            onClick={() => {
+              setCurrentView("profile");
+            }}>
+            <IoPersonCircleOutline />
+            <p className="text-sm">Profile</p>
+          </button>
+          <button
+            className={`flex flex-col items-center justify-center text-[30px] ${
+              currentView === "orders" ? "text-[#8667F2]" : "text-white"
+            }`}
+            onClick={() => {
+              setCurrentView("orders");
+            }}>
+            <IoListOutline />
+            <p className="text-sm">Orders</p>
+          </button>
+          <button
+            className={`flex flex-col items-center justify-center text-[30px] ${
+              currentView === "search" ? "text-[#8667F2]" : "text-white"
+            }`}
+            onClick={() => {
+              setCurrentView("search");
+            }}>
+            <IoSearchOutline />
+            <p className="text-sm">Search</p>
+          </button>
+          <button
+            className={`flex flex-col items-center justify-center text-[30px] ${
+              currentView === "message" ? "text-[#8667F2]" : "text-white"
+            }`}
+            onClick={() => {
+              setCurrentView("message");
+            }}>
+            <IoChatboxOutline />
+            <p className="text-sm">Message</p>
+          </button>
+          <button
+            className={`flex flex-col items-center justify-center text-[30px] ${
+              currentView === "alerts" ? "text-[#8667F2]" : "text-white"
+            }`}
+            onClick={() => {
+              setCurrentView("alerts");
+            }}>
+            <IoNotificationsOutline />
+            <p className="text-sm">Alerts</p>
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
