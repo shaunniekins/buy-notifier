@@ -104,7 +104,7 @@ const Overview = () => {
     return () => clearTimeout(timeout);
   }, [position]);
 
-  const radius = 100; // in kilometers
+  const radius = 0.4; // in kilometers
 
   // get the positions of the corresponding users within the defined radius:
   // if current user: peddler -> get consumer positions
